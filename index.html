@@ -4454,19 +4454,35 @@
     <!-- Noise Overlay -->
     <div class="noise-overlay"></div>
 
-    <!-- Header -->
+    <!-- Header with Fixed Navigation Alignment -->
     <header class="header" id="header">
-        <div class="container">
-            <nav class="navbar">
-                <a href="#" class="logo">Jit<span class="logo-highlight">ware</span></a>
-                <ul class="nav-links">
-                    <li><a href="#services">Diensten</a></li>
-                    <li><a href="#cases">Cases</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#about">Over ons</a></li>
-                    <li><a href="#contact">Contact</a></li>
+        <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
+            <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="#" class="logo"
+                    style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 800; color: var(--text-light); text-decoration: none; display: flex; align-items: center; position: relative; z-index: 1;">Jit<span
+                        class="logo-highlight">ware</span></a>
+    
+                <!-- Centered Nav Links -->
+                <ul class="nav-links"
+                    style="display: flex; list-style: none; gap: 40px; margin: 0 auto; position: absolute; left: 50%; transform: translateX(-50%);">
+                    <li><a href="#services"
+                            style="color: var(--text-light); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: var(--font-size-md); position: relative; padding: 5px 0; transition: all var(--transition-fast);">Diensten</a>
+                    </li>
+                    <li><a href="#cases"
+                            style="color: var(--text-light); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: var(--font-size-md); position: relative; padding: 5px 0; transition: all var(--transition-fast);">Cases</a>
+                    </li>
+                    <li><a href="#blog"
+                            style="color: var(--text-light); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: var(--font-size-md); position: relative; padding: 5px 0; transition: all var(--transition-fast);">Blog</a>
+                    </li>
+                    <li><a href="#about"
+                            style="color: var(--text-light); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: var(--font-size-md); position: relative; padding: 5px 0; transition: all var(--transition-fast);">Over
+                            ons</a></li>
+                    <li><a href="#contact"
+                            style="color: var(--text-light); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: var(--font-size-md); position: relative; padding: 5px 0; transition: all var(--transition-fast);">Contact</a>
+                    </li>
                 </ul>
-                <div class="nav-buttons">
+    
+                <div class="nav-buttons" style="display: flex; gap: 16px; margin-left: auto;">
                     <button class="btn btn-secondary">Login</button>
                     <button class="btn btn-primary">Gratis analyse</button>
                 </div>
@@ -5960,140 +5976,173 @@
                 });
             });
 
-            // Get chart canvas
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            // Set up Intersection Observer for the dashboard chart
+            const dashboardElement = document.querySelector('.dashboard');
+            const dashboardChart = document.querySelector('.dashboard-chart');
 
-            // Define gradient for area
-            const areaGradient = ctx.createLinearGradient(0, 0, 0, 300);
-            areaGradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
-            areaGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+            // Use whichever element is better to observe (dashboard or dashboard-chart)
+            const elementToObserve = dashboardChart || dashboardElement;
 
-            // Define gradient for line
-            const lineGradient = ctx.createLinearGradient(0, 0, 600, 0);
-            lineGradient.addColorStop(0, '#4cc9f0');
-            lineGradient.addColorStop(1, '#4361ee');
+            // Create the observer
+            const chartObserver = new IntersectionObserver((entries) => {
+                // Check if dashboard/chart is visible
+                if (entries[0].isIntersecting) {
+                    // When visible, initialize the chart
+                    initializeChart();
 
-            // Chart data
-            const data = {
-                labels: ['Apr 1', 'Apr 3', 'Apr 5', 'Apr 7', 'Apr 9', 'Apr 11', 'Apr 13', 'Apr 15', 'Apr 17', 'Apr 19', 'Apr 21', 'Apr 23', 'Apr 25', 'Apr 27', 'Apr 29'],
-                datasets: [{
-                    label: 'Website Traffic',
-                    data: [350, 400, 380, 450, 420, 480, 460, 510, 490, 530, 520, 560, 580, 610, 650],
-                    fill: true,
-                    backgroundColor: areaGradient,
-                    borderColor: lineGradient,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointBorderColor: '#4361ee',
-                    pointHoverBorderColor: '#4361ee',
-                    pointBorderWidth: 2,
-                    pointHoverBorderWidth: 3
-                }]
-            };
+                    // Disconnect observer after triggering
+                    chartObserver.disconnect();
+                }
+            }, {
+                threshold: 0.3, // Trigger when 30% of element is visible
+                rootMargin: '0px 0px -10% 0px' // Small negative margin
+            });
 
-            // Chart config
-            const config = {
-                type: 'line',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: 10
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.6)',
-                                font: {
-                                    size: 10
+            // Start observing if element exists
+            if (elementToObserve) {
+                chartObserver.observe(elementToObserve);
+            } else {
+                // If element not found, initialize chart immediately
+                initializeChart();
+            }
+
+            // Function to initialize chart
+            function initializeChart() {
+                // Get chart canvas
+                const ctx = document.getElementById('analyticsChart').getContext('2d');
+
+                // Define gradient for area
+                const areaGradient = ctx.createLinearGradient(0, 0, 0, 300);
+                areaGradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+                areaGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+                // Define gradient for line
+                const lineGradient = ctx.createLinearGradient(0, 0, 600, 0);
+                lineGradient.addColorStop(0, '#4cc9f0');
+                lineGradient.addColorStop(1, '#4361ee');
+
+                // Chart data
+                const data = {
+                    labels: ['Apr 1', 'Apr 3', 'Apr 5', 'Apr 7', 'Apr 9', 'Apr 11', 'Apr 13', 'Apr 15', 'Apr 17', 'Apr 19', 'Apr 21', 'Apr 23', 'Apr 25', 'Apr 27', 'Apr 29'],
+                    datasets: [{
+                        label: 'Website Traffic',
+                        data: [350, 400, 380, 450, 420, 480, 460, 510, 490, 530, 520, 560, 580, 610, 650],
+                        fill: true,
+                        backgroundColor: areaGradient,
+                        borderColor: lineGradient,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointBorderColor: '#4361ee',
+                        pointHoverBorderColor: '#4361ee',
+                        pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3
+                    }]
+                };
+
+                // Chart config
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: 10
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
                                 },
-                                maxRotation: 0,
-                                callback: function (val, index) {
-                                    // Show fewer labels for better readability
-                                    return index % 3 === 0 ? this.getLabelForValue(val) : '';
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    font: {
+                                        size: 10
+                                    },
+                                    maxRotation: 0,
+                                    callback: function (val, index) {
+                                        // Show fewer labels for better readability
+                                        return index % 3 === 0 ? this.getLabelForValue(val) : '';
+                                    }
                                 }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    font: {
+                                        size: 10
+                                    },
+                                    padding: 10,
+                                    stepSize: 100
+                                },
+                                min: 300,
+                                max: 700
                             }
                         },
-                        y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
+                        plugins: {
+                            legend: {
+                                display: false
                             },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.6)',
-                                font: {
-                                    size: 10
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                                titleFont: {
+                                    size: 12
+                                },
+                                bodyFont: {
+                                    size: 12
                                 },
                                 padding: 10,
-                                stepSize: 100
-                            },
-                            min: 300,
-                            max: 700
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                            titleFont: {
-                                size: 12
-                            },
-                            bodyFont: {
-                                size: 12
-                            },
-                            padding: 10,
-                            cornerRadius: 6,
-                            displayColors: false,
-                            callbacks: {
-                                label: function (context) {
-                                    return 'Bezoekers: ' + context.parsed.y;
+                                cornerRadius: 6,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function (context) {
+                                        return 'Bezoekers: ' + context.parsed.y;
+                                    }
                                 }
                             }
-                        }
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: false
-                    },
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart',
-                        delay: function (context) {
-                            return context.dataIndex * 100;
+                        },
+                        hover: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutQuart',
+                            delay: function (context) {
+                                return context.dataIndex * 100;
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            // Initialize chart
-            const analyticsChart = new Chart(ctx, config);
+                // Initialize chart
+                const analyticsChart = new Chart(ctx, config);
 
-            // Animation to show points after line is drawn
-            setTimeout(() => {
-                analyticsChart.data.datasets[0].pointRadius = 4;
-                analyticsChart.update();
-            }, 2000);
+                // Animation to show points after line is drawn
+                setTimeout(() => {
+                    analyticsChart.data.datasets[0].pointRadius = 4;
+                    analyticsChart.update();
+                }, 2000);
 
-            // Chart dots animation and hover effects
-            const chartDots = document.querySelectorAll('.chart-dot');
-            setTimeout(() => {
-                chartDots.forEach((dot, index) => {
-                    setTimeout(() => {
-                        dot.style.transform = 'translate(-50%, -50%) scale(1)';
-                    }, 300 * index);
-                });
-            }, 2000);
+                // Chart dots animation and hover effects
+                const chartDots = document.querySelectorAll('.chart-dot');
+                setTimeout(() => {
+                    chartDots.forEach((dot, index) => {
+                        setTimeout(() => {
+                            dot.style.transform = 'translate(-50%, -50%) scale(1)';
+                        }, 300 * index);
+                    });
+                }, 2000);
+            }
 
             // Animation on scroll
             const animateOnScroll = function () {
@@ -6116,7 +6165,6 @@
 
             // Run once on page load after a slight delay
             setTimeout(animateOnScroll, 500);
-
             // AI Prompt interaction - Copy button functionality
             const copyButton = document.querySelector('.btn-copy');
             const textarea = document.querySelector('.prompt-textarea');
